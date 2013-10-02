@@ -36,6 +36,7 @@ You have two options of using this plugin.
     //Default properties are:
     $properties = array(
         'creator'     => 'ATK4 addon kk_xls',
+        'lastModifiedBy' => 'kk_xls',
         'title'       => 'ATK4 addon kk_xls',
         'subject'     => 'xls data',
         'description' => 'This file has been generated via kk_xls addon for ATK4',

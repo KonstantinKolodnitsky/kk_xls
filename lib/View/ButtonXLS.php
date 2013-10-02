@@ -11,6 +11,7 @@ class View_ButtonXLS extends \View_Button{
     public $fields = null;
     public $properties = array(
         'creator' => 'ATK4 addon kk_xls',
+        'lastModifiedBy' => 'kk_xls',
         'title' => 'ATK4 addon kk_xls',
         'subject' => 'xls data',
         'description' => 'This file has been generated via kk_xls addon for ATK4',

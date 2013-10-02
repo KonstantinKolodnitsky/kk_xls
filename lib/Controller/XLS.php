@@ -43,7 +43,7 @@ class Controller_XLS extends \AbstractController{
 
         $objPHPExcel = new \PHPExcel();
         $objPHPExcel->getProperties()->setCreator($properties['creator'])
-            ->setLastModifiedBy($properties['creator'])
+            ->setLastModifiedBy($properties['lastModifiedBy'])
             ->setTitle($properties['title'])
             ->setSubject($properties['subject'])
             ->setDescription($properties['description'])
@@ -87,7 +87,7 @@ class Controller_XLS extends \AbstractController{
         $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
 
         header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="'.$properties['title'].date('Y-m-i-H-i-s').'.xls"');
+        header('Content-Disposition: attachment;filename="'.$properties['title'].'-'.date('Y-m-i-H-i-s').'.xls"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');
