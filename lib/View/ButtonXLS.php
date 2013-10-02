@@ -8,6 +8,7 @@ namespace kk_xls;
 class View_ButtonXLS extends \View_Button{
     public $data;
     public $label = 'Get XLS';
+    public $fields = null;
     public $properties = array(
         'creator' => 'ATK4 addon kk_xls',
         'title' => 'ATK4 addon kk_xls',
@@ -25,6 +26,6 @@ class View_ButtonXLS extends \View_Button{
 
         $this->js('click',$this->js()->univ()->redirect($this->api->url(null,array('action'=>'export'))));
 
-        if($_GET['action'] == 'export'){$xls->generateXLS($this->properties, $this->data);}
+        if($_GET['action'] == 'export'){$xls->generateXLS($this->properties, $this->data, $this->fields);}
     }
 }
