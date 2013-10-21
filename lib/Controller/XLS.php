@@ -54,7 +54,7 @@ class Controller_XLS extends \AbstractController{
         $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(2))->setWidth(10);
         $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(3))->setWidth(14);
         $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(4))->setWidth(12);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(5))->setWidth(12);
+        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(5))->setWidth(15);
         $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(6))->setWidth(15);
 
         for($i=0; $i<count($exportFields); $i++){
@@ -82,12 +82,12 @@ class Controller_XLS extends \AbstractController{
         $objRichText = new \PHPExcel_RichText();
         $objPayable = $objRichText->createTextRun($total_spent);
         $objPayable->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndex(5).($i+2), $objRichText);
+        $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndex(4).($i+2), $objRichText);
 
         $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
 
         header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="'.$properties['title'].'-'.date('Y-m-i-H-i-s').'.xls"');
+        header('Content-Disposition: attachment;filename="'.$properties['title'].'-'.date('Y-m-d-H-i-s').'.xls"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');
