@@ -7,6 +7,15 @@
 namespace kk_xls;
 require_once __DIR__.'/../../vendor/phpexcel/PHPExcel.php';
 class Controller_XLS extends \AbstractController{
+    public $properties = array(
+        'creator' => 'ATK4 addon kk_xls',
+        'lastModifiedBy' => 'kk_xls',
+        'title' => 'ATK4 addon kk_xls',
+        'subject' => 'xls data',
+        'description' => 'This file has been generated via kk_xls addon for ATK4',
+        'keywords' => 'atk4, agiletoolkit, addons, kk_xls',
+        'category' => 'data'
+    );
     function init(){
         parent::init();
 
@@ -17,14 +26,7 @@ class Controller_XLS extends \AbstractController{
             'php'=>array('lib','vendor')
         ))->setParent($l);
     }
-
-    /**
-     * @param $properties
-     * @param $m
-     * @param null $fields
-     * @throws \BaseException
-     */
-    function generateXLS($properties, $m, $fields = null){
+    function getXLS($m, $properties, $fields = null, $fields_width = null, $count_totals = null){
         /*Checking data*/
         if(is_subclass_of($m,'SQL_Model')){
             $data=$m->getRows();
@@ -37,26 +39,41 @@ class Controller_XLS extends \AbstractController{
         }else{
             throw $this->exception('Data should be associative array or Model');
         }
-
-        /*Getting fields*/
-        $exportFields = $this->getExportFields($data,$fields);
-
+        $this->generateXLS($data, $properties, $fields, $fields_width, $count_totals);
+    }
+    function generateXLS($data, $properties, $fields = null, $fields_width = null, $count_totals = null){
         $objPHPExcel = new \PHPExcel();
-        $objPHPExcel->getProperties()->setCreator($properties['creator'])
+        $objPHPExcel
+            ->getProperties()
+            ->setCreator($properties['creator'])
             ->setLastModifiedBy($properties['lastModifiedBy'])
             ->setTitle($properties['title'])
             ->setSubject($properties['subject'])
             ->setDescription($properties['description'])
             ->setKeywords($properties['keywords'])
             ->setCategory($properties['category']);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(0))->setWidth(15);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(1))->setWidth(30);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(2))->setWidth(10);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(3))->setWidth(14);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(4))->setWidth(12);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(5))->setWidth(15);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex(6))->setWidth(15);
 
+        /*Set columns width*/
+        if($fields_width){
+            if(is_array($fields_width)){
+                $count = 0;
+                foreach ($fields_width as $width){
+                    if(is_numeric($width)){
+                        $objPHPExcel->getActiveSheet()->getColumnDimension($this->getColumnIndex($count))->setWidth($width);
+                        $count++;
+                    }else{
+                        throw $this->exception('Values in $field_width should be numeric');
+                    }
+                }
+            }else{
+                throw $this->exception('$field_width should be an array');
+            }
+        }
+
+        /*Get fields to show*/
+        $exportFields = $this->getExportFields($data,$fields);
+
+        /*Set first row with titles*/
         for($i=0; $i<count($exportFields); $i++){
             $objRichText = new \PHPExcel_RichText();
             $objPayable = $objRichText->createTextRun($exportFields[$i]);
@@ -65,26 +82,39 @@ class Controller_XLS extends \AbstractController{
         }
         $objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
 
-        $total_spent=0;
+        /*Add content*/
         for($i=0; $i<count($data); $i++){
             $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
             for($j=0; $j<count($exportFields); $j++){
                 $objPHPExcel->setActiveSheetIndex(0)->setCellValue($this->getColumnIndex($j).($i+2),$data[$i][$exportFields[$j]]);
             }
-            $total_spent=$total_spent+(float)$data[$i]['spent_time'];
         }
+        /*Add totals*/
+        if($count_totals){
+            if(is_array($count_totals)){
+                $objRichText = new \PHPExcel_RichText();
+                $objPayable = $objRichText->createTextRun('TOTAL');
+                $objPayable->getFont()->setBold(true);
+                $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndex(0).($i+2), $objRichText);
 
-        $objRichText = new \PHPExcel_RichText();
-        $objPayable = $objRichText->createTextRun('TOTAL');
-        $objPayable->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndex(0).($i+2), $objRichText);
+                /*Get fields to count*/
+                $getFieldsList = $this->getExportFields($data,$count_totals);
+                foreach($getFieldsList as $field){
+                    $total = 0;
+                    for($i=0; $i<count($data); $i++){
+                        $total = $total+(float)$data[$i][$field];
+                    }
+                    $objRichText = new \PHPExcel_RichText();
+                    $objPayable = $objRichText->createTextRun($total);
+                    $objPayable->getFont()->setBold(true);
+                    $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndexByName($exportFields, $field).($i+2), $objRichText);
 
-        $objRichText = new \PHPExcel_RichText();
-        $objPayable = $objRichText->createTextRun($total_spent);
-        $objPayable->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndex(4).($i+2), $objRichText);
-
-        $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
+                    $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
+                }
+            }else{
+                throw $this->exception('$count_totals should be an array');
+            }
+        }
 
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="'.$properties['title'].'-'.date('Y-m-d-H-i-s').'.xls"');
@@ -112,6 +142,7 @@ class Controller_XLS extends \AbstractController{
      * @throws \BaseException
      */
     function getExportFields($arr,$myFields = null){
+        $fields = array();
         if($myFields && is_array($myFields)){
             foreach ($myFields as $myval){
                 if(array_key_exists($myval,$arr[0])){
@@ -135,5 +166,20 @@ class Controller_XLS extends \AbstractController{
     function getColumnIndex($i){
         $columns=array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
         return $columns[$i];
+    }
+
+    /**
+     * @param array $fields
+     * @param string $field_name
+     * @return int
+     */
+    function getColumnIndexByName($fields, $field_name){
+        $index = 0;
+        foreach($fields as $val){
+            if($val == $field_name){
+                return $this->getColumnIndex($index);
+            }
+            $index++;
+        }
     }
 }
