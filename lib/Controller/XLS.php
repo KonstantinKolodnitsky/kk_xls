@@ -107,7 +107,7 @@ class Controller_XLS extends \AbstractController{
                     $objRichText = new \PHPExcel_RichText();
                     $objPayable = $objRichText->createTextRun($total);
                     $objPayable->getFont()->setBold(true);
-                    $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndexByName($exportFields, $field).($i+3), $objRichText);
+                    $objPHPExcel->getActiveSheet()->setCellValue($this->getColumnIndexByName($exportFields, $field).($i+2), $objRichText);
 
                     $objPHPExcel->getActiveSheet()->getRowDimension($i+2)->setRowHeight(20);
                 }
