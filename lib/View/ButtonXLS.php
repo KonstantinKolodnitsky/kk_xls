@@ -4,7 +4,7 @@
  * Date: 02.10.13
  * Time: 10:34
  */
-namespace kk_xls;
+namespace KonstantinKolodnitsky\kk_xls;
 class View_ButtonXLS extends \View_Button{
     public $data;
     public $label = 'Get XLS';
@@ -25,7 +25,7 @@ class View_ButtonXLS extends \View_Button{
 
         $this->set($this->label);
 
-        $xls = $this->add('kk_xls/Controller_XLS');
+        $xls = $this->add('KonstantinKolodnitsky/kk_xls/Controller_XLS');
 
         $this->js('click',$this->js()->univ()->redirect($this->api->url(null,array('action'=>'export'))));
 

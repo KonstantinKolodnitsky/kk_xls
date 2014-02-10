@@ -4,7 +4,7 @@
  * Date: 02.10.13
  * Time: 10:16
  */
-namespace kk_xls;
+namespace KonstantinKolodnitsky\kk_xls;
 require_once __DIR__.'/../../vendor/phpexcel/PHPExcel.php';
 class Controller_XLS extends \AbstractController{
     public $properties = array(
